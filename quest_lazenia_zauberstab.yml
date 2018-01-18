@@ -1,0 +1,97 @@
+quest_lazenia_zauberstab:
+    type: assignment
+    debug: false
+    interact scripts:
+    - 10 quest_lazenia_zauberstab_0
+    actions:
+        on assignment:    
+        - trigger name:proximity radius:3 toggle:true
+
+quest_lazenia_zauberstab_0:
+   type: interact
+   debug: false
+   Steps:
+       1:
+         Proximity Trigger:
+             entry:
+                Script:
+                  - ^narrate "<&e>Hallo Abenteurer"
+                  - ^random 2
+                  - ^narrate "<&e>Könnt ihr uns helfen?"
+                  - ^narrate "<&e>Ich bräuchte eure Hilfe"
+         Click Trigger:
+           Script:
+             - ^narrate "<&e>Hallo <player.name> ich könnte deine Hilfe gebrauchen. In der Festung herrscht ein Dunkler Fürst Namens Ror'rat. Er besitzt einen Zauberstab, den ich benötige. Töte Ror'rat und bringe mir anschliesend den Zauberstab...du wirst reich belohnt werden."
+             - ^narrate "<&f>schreib [<&9>ja<&r>] wenn du mit der Quest beginnen möchtest."
+         Chat Trigger:
+           1:
+            Trigger: Quest /abbrechen/ /abort/
+            Script:
+              - inject quest_abort
+           2:
+            Trigger: /ja/ ich werde Ror'rat erledigen.
+            Script:
+              - ^narrate "<&e>Viel erfolg!"            
+              - zap
+       2:
+         Click Trigger:
+           Script:
+             - narrate "<&e>Und habt ihr Ror'rat bezwingen können?"
+             - narrate "<&e>Zeig mir den Zauberstab als Beweis..."
+             - if <player.inventory.contains_any[questitem_rorrat_zauberstab]> {
+               - ^take i@questitem_rorrat_zauberstab qty:1
+               - narrate "<&e>Ihr habt ihn also wirklich getötet?!"
+               - narrate "<&2>+500 Skronen"
+               - flag player rorrat_done:true duration:3600s
+               - give money quantity:500
+               - run cycube_moneybag
+               - zap 3
+             } else {
+               - narrate "<&e>Oh ich sehe Ihr habt es nocht nicht."
+             }
+       3:
+         Click Trigger:
+           Script:
+             - if <player.has_flag[rorrat_done]> {
+               - ^random 3
+               - narrate "<&e>Momentan habe ich momentan keine Aufgabe für dich."
+               - narrate "<&e>Vielen dank <player.name> für deine Hilfe."
+               - narrate "<&e>Ich freue mich, dich zu sehen <player.name>."
+             } else {
+               - zap 1
+             }
+              
+questitem_rorrat_zauberstab:
+    type: item
+    debug: false
+    material: blaze_rod
+    display name: <&6>Zauberstab von Ror'rat
+    enchantments:
+    - THORNS:1
+    lore:
+    - (Questgegenstand)
+              
+boss_rorrat:
+    type: assignment
+    debug: false    
+    interact scripts:
+    - 10 boss_rorrat_0
+    actions:
+        on assignment:    
+        - trigger name:damage toggle:true     
+        on death:
+        - execute as_server "say <gold><npc.killer.name> <yellow>hat <aqua>Ror'rat <yellow>getötet!" 
+        - drop i@questitem_rorrat_zauberstab <npc.location> qty:1
+        
+boss_rorrat_0:
+   type: interact
+   debug: false
+   Steps:
+       1:
+         Damage Trigger:
+           Script:
+           - define rndnbr <util.random.int[1].to[100]>
+           - if <def[rndnbr]> < 50 {
+             - cast slow <player> d:10 p:3 
+           }
+           
