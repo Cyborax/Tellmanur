@@ -1,6 +1,8 @@
 quest_lazenia_zauberstab:
     type: assignment
     debug: false
+    version: 1.00
+    author: cyborax
     interact scripts:
     - 10 quest_lazenia_zauberstab_0
     actions:
